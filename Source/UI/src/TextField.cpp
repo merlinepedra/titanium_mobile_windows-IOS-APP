@@ -235,6 +235,7 @@ namespace TitaniumWindows
 			} else if (password_box__) {
 				return TitaniumWindows::Utility::ConvertUTF8String(password_box__->Password);
 			}
+			return "";
 		}
 
 		void TextField::set_value(const std::string& value) TITANIUM_NOEXCEPT
