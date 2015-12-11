@@ -15,6 +15,7 @@ var appc = require('node-appc'),
 	fs = require('fs'),
 	windowslib = require('windowslib'),
 	path = require('path'),
+	windowsPackageJson = appc.pkginfo.package(module),
 	__ = appc.i18n(__dirname).__;
 
 exports.name = 'windows';
@@ -22,29 +23,23 @@ exports.name = 'windows';
 exports.title = 'Windows';
 
 exports.detect = function (types, config, next) {
-	var results = this.data = {};
-
-	// we are going to load Mobile Web's package.json to get the vendor dependencies.
-	// this will probably cause issues when the Windows Phone platform is introduced.
-	var packageJson = appc.pkginfo.package(module);
-
 	windowslib.detect({
 		powershell:                       config.get('windows.executables.powershell'),
 		preferredWindowsPhoneSDK:         config.get('windows.wpsdk.selectedVersion'),
 		preferredVisualStudio:            config.get('windows.visualstudio.selectedVersion'),
-		supportedMSBuildVersions:         packageJson.vendorDependencies['msbuild'],
-		supportedVisualStudioVersions:    packageJson.vendorDependencies['visual studio'],
-		supportedWindowsPhoneSDKVersions: packageJson.vendorDependencies['windows phone sdk'],
+		supportedMSBuildVersions:         windowsPackageJson.vendorDependencies['msbuild'],
+		supportedVisualStudioVersions:    windowsPackageJson.vendorDependencies['visual studio'],
+		supportedWindowsPhoneSDKVersions: windowsPackageJson.vendorDependencies['windows phone sdk'],
 		tasklist:                         config.get('windows.executables.tasklist')
-	}, function (err, winInfo) {
+	}, function (err, results) {
 		if (err) {
 			return next(err);
 		}
 
 		// TIMOB-19076: Windows Phone 8.0 is not supported
-		winInfo.windowsphone && delete winInfo.windowsphone['8.0'];
-		winInfo.windows && delete winInfo.windows['8.0'];
-		winInfo.emulators && delete winInfo.emulators['8.0'];
+		results.windowsphone && delete results.windowsphone['8.0'];
+		results.windows && delete results.windows['8.0'];
+		results.emulators && delete results.emulators['8.0'];
 
 		results.tisdk = path.basename((function scan(dir) {
 			var file = path.join(dir, 'manifest.json');
@@ -55,10 +50,8 @@ exports.detect = function (types, config, next) {
 			return dir != '/' && scan(dir);
 		}(__dirname)));
 
-		results.windows = winInfo;
-
-		if (winInfo.issues.length) {
-			this.issues = this.issues.concat(winInfo.issues);
+		if (results.issues.length) {
+			this.issues = this.issues.concat(results.issues);
 		}
 
 		// improve error messages
@@ -87,15 +80,15 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 						
 		// Visual Studio
 		logger.log(styleHeading(__('Microsoft (R) Visual Studio')));
-		if (data.windows.visualstudio && Object.keys(data.windows.visualstudio).length) {
-			Object.keys(data.windows.visualstudio).sort().forEach(function (ver) {
-				var supported = data.windows.visualstudio[ver].supported ? '' : styleBad(' **' + __('Not supported by Titanium SDK %s', data.tisdk) + '**');
+		if (data.visualstudio && Object.keys(data.visualstudio).length) {
+			Object.keys(data.visualstudio).sort().forEach(function (ver) {
+				var supported = data.visualstudio[ver].supported ? '' : styleBad(' **' + __('Not supported by Titanium SDK %s', data.tisdk) + '**');
 				logger.log(
-					'  ' + String(ver).cyan + (data.windows.visualstudio[ver].selected ? ' (' + __('selected') + ')' : '').grey + supported + '\n' +
-					'  ' + rpad('  ' + __('Path')) + ' = ' + styleValue(data.windows.visualstudio[ver].path) + '\n' +
-					'  ' + rpad('  ' + __('CLR Version')) + ' = ' + styleValue(data.windows.visualstudio[ver].clrVersion) + '\n' +
-					'  ' + rpad('  ' + __('MSBuild Version')) + ' = ' + styleValue('v' + data.windows.visualstudio[ver].msbuildVersion) + '\n' +
-					'  ' + rpad('  ' + __('Windows Phone SDKs')) + ' = ' + styleValue(data.windows.visualstudio[ver].wpsdk ? Object.keys(data.windows.visualstudio[ver].wpsdk).join(', ') : __('not installed'))
+					'  ' + String(ver).cyan + (data.visualstudio[ver].selected ? ' (' + __('selected') + ')' : '').grey + supported + '\n' +
+					'  ' + rpad('  ' + __('Path')) + ' = ' + styleValue(data.visualstudio[ver].path) + '\n' +
+					'  ' + rpad('  ' + __('CLR Version')) + ' = ' + styleValue(data.visualstudio[ver].clrVersion) + '\n' +
+					'  ' + rpad('  ' + __('MSBuild Version')) + ' = ' + styleValue('v' + data.visualstudio[ver].msbuildVersion) + '\n' +
+					'  ' + rpad('  ' + __('Windows Phone SDKs')) + ' = ' + styleValue(data.visualstudio[ver].wpsdk ? Object.keys(data.visualstudio[ver].wpsdk).join(', ') : __('not installed'))
 				);
 			});
 			logger.log();
@@ -104,12 +97,12 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 		}
 
 		logger.log(styleHeading(__('Microsoft (R) Windows Phone SDK')));
-		if (data.windows.windowsphone && Object.keys(data.windows.windowsphone).length) {
-			Object.keys(data.windows.windowsphone).sort().forEach(function (ver) {
-				var supported = data.windows.windowsphone[ver].supported ? '' : styleBad(' **' + __('Not supported by Titanium SDK %s', data.tisdk) + '**');
+		if (data.windowsphone && Object.keys(data.windowsphone).length) {
+			Object.keys(data.windowsphone).sort().forEach(function (ver) {
+				var supported = data.windowsphone[ver].supported ? '' : styleBad(' **' + __('Not supported by Titanium SDK %s', data.tisdk) + '**');
 				logger.log(
-					'  ' + String(ver).cyan + (data.windows.windowsphone[ver].selected ? ' (' + __('selected') + ')' : '').grey + supported + '\n' +
-					'  ' + rpad('  ' + __('Path')) + ' = ' + styleValue(data.windows.windowsphone[ver].path)
+					'  ' + String(ver).cyan + (data.windowsphone[ver].selected ? ' (' + __('selected') + ')' : '').grey + supported + '\n' +
+					'  ' + rpad('  ' + __('Path')) + ' = ' + styleValue(data.windowsphone[ver].path)
 				);
 			});
 			logger.log();
@@ -118,13 +111,13 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 		}
 
 		logger.log(styleHeading(__('Windows PowerShell')));
-		logger.log('  ' + rpad('  ' + __('Enabled')) + ' = ' + styleValue(data.windows.powershell && data.windows.powershell.enabled ? __('yes') : __('no')) + '\n');
+		logger.log('  ' + rpad('  ' + __('Enabled')) + ' = ' + styleValue(data.powershell && data.powershell.enabled ? __('yes') : __('no')) + '\n');
 
 		logger.log(styleHeading(__('Windows Phone Emulators')));
-		if (data.windows.emulators) {
-			Object.keys(data.windows.emulators).forEach(function (ver) {
+		if (data.emulators) {
+			Object.keys(data.emulators).forEach(function (ver) {
 				logger.log(String(ver).grey);
-				data.windows.emulators[ver].forEach(function (emu) {
+				data.emulators[ver].forEach(function (emu) {
 					logger.log('  ' + emu.name.cyan);
 					logger.log('  ' + rpad('  ' + __('UDID')) + ' ' + emu.udid.magenta);
 				});
@@ -135,8 +128,8 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 		}
 
 		logger.log(styleHeading(__('Windows Phone Devices')));
-		if (data.windows.devices) {
-			data.windows.devices.forEach(function (dev) {
+		if (data.devices) {
+			data.devices.forEach(function (dev) {
 				logger.log('  ' + dev.name.cyan);
 				logger.log('  ' + rpad('  ' + __('UDID')) + ' ' + String(dev.udid).magenta);
 			});
