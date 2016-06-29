@@ -8,7 +8,7 @@ var should = require('./should'),
 	utilities = require('./utilities/utilities');
 
 describe('Titanium.UI.ImageView', function () {
-	this.timeout(5000);
+	this.timeout(10000);
 
 	it('apiName', function (finish) {
 		should(Ti.UI.ImageView.apiName).be.eql('Ti.UI.ImageView');
@@ -212,7 +212,6 @@ describe('Titanium.UI.ImageView', function () {
 			height: Ti.UI.SIZE
 		});
 		var innerView = Ti.UI.createImageView({
-			image: 'http://api.randomuser.me/portraits/women/0.jpg',
 			width: 100,
 			height: Ti.UI.SIZE,
 			top: 0,
@@ -228,6 +227,7 @@ describe('Titanium.UI.ImageView', function () {
 				finish();
 			}, 1000);
 		});
+		innerView.image = 'http://api.randomuser.me/portraits/women/0.jpg';
 		win.add(view);
 		win.open();
 	});

@@ -234,23 +234,11 @@ namespace TitaniumWindows
 			const auto images = get_images();
 			const auto images_count = images.size();
 			for (std::size_t i = 0; i < images_count; i++) {
-				bitmaps__->Append(nullptr);
-				const auto image = images.at(i);
-				loadBitmap(image, [this, images_count, i](BitmapImage^ bitmap){
-					bitmaps_loaded_count__++;
-					bitmaps__->SetAt(i, bitmap);
-					// do we load all images?
-					if (bitmaps_loaded_count__ >= images_count) {
-						bitmaps_loaded__ = true;
-						fireEvent("load");
-						// start animation when we held it off
-						if (bitmaps_waiting__) {
-							start();
-						}
-					}
-				});
+				bitmaps__->Append(ref new BitmapImage(TitaniumWindows::Utility::GetUriFromPath(images.at(i))));
 			}
 			if (images.size() > 0) {
+				bitmaps_loaded__ = true;
+				fireEvent("load");
 				return;
 			}
 
@@ -341,34 +329,6 @@ namespace TitaniumWindows
 			});
 		}
 
-		void ImageView::loadBitmap(const std::string& path, SetBitmapImageCallback_t callback)
-		{
-			const auto uri = TitaniumWindows::Utility::GetUriFromPath(path);
-			// check if we're loading from local file
-			if (boost::starts_with(TitaniumWindows::Utility::ConvertString(uri->SchemeName), "ms-")) {
-				concurrency::create_task(StorageFile::GetFileFromApplicationUriAsync(uri)).then([this, callback](concurrency::task<StorageFile^> task){
-					try {
-						auto file = task.get();
-						loadBitmap(TitaniumWindows::Utility::GetContentFromFile(file), callback);
-					} catch (Platform::COMException^ ex) {
-						TITANIUM_LOG_WARN("ImageView::loadBitmap: ", TitaniumWindows::Utility::ConvertString(ex->Message));
-						callback(ref new BitmapImage());
-					}
-				});
-			} else {
-				Windows::Web::Http::HttpClient^ httpClient = ref new Windows::Web::Http::HttpClient();
-				concurrency::create_task(httpClient->GetBufferAsync(uri)).then([this, callback](concurrency::task<IBuffer^> task){
-					try {
-						auto buffer = task.get();
-						loadBitmap(TitaniumWindows::Utility::GetContentFromBuffer(buffer), callback);
-					} catch (Platform::COMException^ ex) {
-						TITANIUM_LOG_WARN("ImageView::loadBitmap: ", TitaniumWindows::Utility::ConvertString(ex->Message));
-						callback(ref new BitmapImage());
-					}
-				});
-			}
-		}
-
 		bool ImageView::prepareImageParams()
 		{
 			// Make sure to call set_image after all properties are set
@@ -416,11 +376,8 @@ namespace TitaniumWindows
 				return;
 			}
 
-			// Make sure to update image from UI thread.
-			// We do it here because we're observing even StorageFile doesn't work outside of UI thread.
-			TitaniumWindows::Utility::RunOnUIThread([path, this](){
-				loadBitmap(path, set_image_fn__);
-			});
+			image__->Source = ref new BitmapImage(TitaniumWindows::Utility::GetUriFromPath(path));
+			fireEvent("load");
 		}
 
 		void ImageView::set_images(const std::vector<std::string>& images) TITANIUM_NOEXCEPT
