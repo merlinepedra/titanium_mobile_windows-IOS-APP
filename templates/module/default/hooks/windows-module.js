@@ -32,26 +32,25 @@ function chooseCMakeVSgenerator(logger, callback) {
 	    '14.0':'Visual Studio 14 2015'
 	};
 
-	windowslib.visualstudio.detect(function (err, results) {
+	windowslib.detect(function (err, results) {
 		if (err) {
 			logger.err(err);
 		}
-		var generator = generators['12.0'];
+		var generator = generators['12.0'],
+			sdks = {
+				windows: results.windows,
+				windowsphone: results.windowsphone
+			};
 		if (results.selectedVisualStudio) {
 			generator = generators[results.selectedVisualStudio.version];
 		}
-		callback(generator);
+		callback(generator, sdks);
 	});
 }
 
 exports.init = function (logger, config, cli) {
 	cli.on('create.post.module.platform.windows', {
 		post: function (data, callback) {
-
-			function isWindows10() {
-				return (os.release().indexOf('10.0') == 0);
-			}
-
 			var cmakeDir = path.resolve(data.sdk.path, 'windows', 'cli', 'vendor', 'cmake'),
 				cmake = path.join(cmakeDir, 'bin', 'cmake.exe'),
 				projectDir = path.join(data.projectDir, 'windows'),
@@ -59,7 +58,7 @@ exports.init = function (logger, config, cli) {
 				cmakeFindDirSrc = path.join(data.sdk.path, 'windows', 'templates', 'build', 'cmake'),
 				cmakeFindDirDst = path.join(projectDir, 'cmake');
 
-			chooseCMakeVSgenerator(logger, function(generator) {
+			chooseCMakeVSgenerator(logger, function(generator, sdks) {
 				async.series([
 					function(next) {
 						logger.info('Copying CMake package finders');
@@ -70,31 +69,48 @@ exports.init = function (logger, config, cli) {
 						next();
 					},
 					function(next) {
-						logger.info('Generating WindowsPhone ARM project');
-						runCMake(logger, cmake, projectDir, 'WindowsPhone', 'ARM', generator, next);
-					},
-					function(next) {
-						logger.info('Generating WindowsPhone Win32 project');
-						runCMake(logger, cmake, projectDir, 'WindowsPhone', 'Win32', generator, next);
-					},
-					function(next) {
-						logger.info('Generating WindowsStore Win32 project');
-						runCMake(logger, cmake, projectDir, 'WindowsStore', 'Win32', generator, next);
-					},
-					function(next) {
-						if (isWindows10()) {
-							logger.info('Generating Windows 10 Win32 project');
-							runCMake(logger, cmake, projectDir, 'Windows10', 'Win32', generator, next);
+						if (sdks.windowsphone.hasOwnProperty('8.1')) {
+							logger.info('Generating WindowsPhone ARM project');
+							runCMake(logger, cmake, projectDir, 'WindowsPhone', 'ARM', generator, next);
 						} else {
-							logger.info('Skipping Windows 10 Win32 project');
+							logger.info('Skipping WindowsPhone ARM project as Windows 8.1 SDK is not installed');
+							next()
 						}
 					},
 					function(next) {
-						if (isWindows10()) {
+						if (sdks.windowsphone.hasOwnProperty('8.1')) {
+							logger.info('Generating WindowsPhone Win32 project');
+							runCMake(logger, cmake, projectDir, 'WindowsPhone', 'Win32', generator, next);
+						} else {
+							logger.info('Skipping WindowsPhone Win32 project as Windows 8.1 SDK is not installed');
+							next()
+						}
+					},
+					function(next) {
+						if (sdks.windowsphone.hasOwnProperty('8.1')) { // still uses windowsphone sdk
+							logger.info('Generating WindowsStore Win32 project');
+							runCMake(logger, cmake, projectDir, 'WindowsStore', 'Win32', generator, next);
+						} else {
+							logger.info('Skipping WindowsStore Win32 project as Windows 8.1 SDK is not installed');
+							next()
+						}
+					},
+					function(next) {
+						if (sdks.windows.hasOwnProperty('10.0')) {
+							logger.info('Generating Windows 10 Win32 project');
+							runCMake(logger, cmake, projectDir, 'Windows10', 'Win32', generator, next);
+						} else {
+							logger.info('Skipping Windows 10 Win32 project as Windows 10.0 SDK is not installed');
+							next();
+						}
+					},
+					function(next) {
+						if (sdks.windowsphone.hasOwnProperty('10.0')) {
 							logger.info('Generating Windows 10 ARM project');
 							runCMake(logger, cmake, projectDir, 'Windows10', 'ARM', generator, next);
 						} else {
-							logger.info('Skipping Windows 10 ARM project');
+							logger.info('Skipping Windows 10 ARM project as Windows 10.0 SDK is not installed');
+							next();
 						}
 					}
 				], function(err, result) {
