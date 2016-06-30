@@ -24,10 +24,11 @@ namespace Titanium
 			  decodeRetries__(5),
 			  defaultImage__(""),
 			  enableZoomControls__(false),
-		      duration__(200),
-		      image__(""),
-		      images__(),
-		      preventDefaultImage__(false)
+			  duration__(200),
+			  image__(""),
+			  images__(),
+			  preventDefaultImage__(false),
+			  reverse__(false)
 		{
 		}
 
