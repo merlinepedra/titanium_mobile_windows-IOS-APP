@@ -101,7 +101,6 @@ namespace TitaniumWindows
 
 			bool prepareImageParams();
 			void loadBitmap(std::vector<std::uint8_t>& data, SetBitmapImageCallback_t);
-			void loadBitmap(const std::string& path,         SetBitmapImageCallback_t);
 			void loadBitmaps();
 
 			void set_image(Windows::UI::Xaml::Media::Imaging::BitmapImage^);
