@@ -111,6 +111,7 @@ namespace Titanium
 		} else {
 			TITANIUM_LOG_WARN(apiName__, " removeEventListener: listener does not exist for event '", name, "'");
 		}
+		event_listener_map__[name] = event_listener_list;
 	}
 
 	void Module::applyProperties(const JSObject& props, JSObject& this_object) TITANIUM_NOEXCEPT
