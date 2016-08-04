@@ -1543,7 +1543,8 @@ namespace TitaniumWindows
 			}
 
 			if (!skipWidth && ((!is_panel__ && setWidthOnWidget) || setWidth)) {
-				if (layout_node__->properties.left.valueType != Titanium::LayoutEngine::None &&
+				if (get_width().empty() &&
+					layout_node__->properties.left.valueType != Titanium::LayoutEngine::None &&
 					layout_node__->properties.right.valueType != Titanium::LayoutEngine::None &&
 					component->ActualWidth == rect.width) {
 					rect.width = oldRect__.width;
@@ -1552,7 +1553,8 @@ namespace TitaniumWindows
 			}
 
 			if (!skipHeight && ((!is_panel__ && setHeightOnWidget) || setHeight)) {
-				if (layout_node__->properties.top.valueType != Titanium::LayoutEngine::None &&
+				if (get_height().empty() &&
+					layout_node__->properties.top.valueType != Titanium::LayoutEngine::None &&
 					layout_node__->properties.bottom.valueType != Titanium::LayoutEngine::None &&
 					component->ActualHeight == rect.height) {
 					rect.height = oldRect__.height;
