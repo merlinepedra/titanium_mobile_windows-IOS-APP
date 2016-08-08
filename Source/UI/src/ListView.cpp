@@ -240,7 +240,7 @@ namespace TitaniumWindows
 				}
 			} else if (name == "update" || name == "replace") {
 				// "update" and "replace" are basically same, it removes existing content and insert new one
-				std::uint32_t index = itemIndex + 1; // +1 because index=0 is header
+				std::uint32_t index = section->hasHeader() ? itemIndex + 1 : itemIndex;
 				for (std::uint32_t i = index; i < index + affectedRows; i++) {
 					views->RemoveAt(index);
 					unregisterListViewItemAsLayoutNode(section->getViewForSectionItem(i - 1));
@@ -252,7 +252,7 @@ namespace TitaniumWindows
 					section->setViewForSectionItem(i, view);
 				}
 			} else if (name == "delete") {
-				const std::uint32_t index = itemIndex + 1; // +1 because index=0 is header
+				const std::uint32_t index = section->hasHeader() ? itemIndex + 1 : itemIndex;
 				TITANIUM_ASSERT(views->Size > index);
 				for (std::uint32_t i = index; i < index + itemCount; i++) {
 					views->RemoveAt(index);
@@ -268,7 +268,9 @@ namespace TitaniumWindows
 					// clear section view except header view
 					const auto header = views->GetAt(0);
 					views->Clear();
-					views->Append(header);
+					if (section->hasHeader()) {
+						views->Append(header);
+					}
 				} else {
 					views->Clear();
 				}
