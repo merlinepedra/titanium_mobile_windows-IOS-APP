@@ -515,4 +515,89 @@ describe('Titanium.UI.ListView', function () {
 		win.open();
 	});
 
+	it('fireListSectionEvent', function (finish) {
+		var section = Ti.UI.createListSection({
+		        items: [
+		            { properties: { title: 'B' } },
+		            { properties: { title: 'A' } },
+		            { properties: { title: 'E' } },
+		            { properties: { title: 'G' } }
+		        ]
+		    }),
+		    listView = Ti.UI.createListView({ sections: [section] }),
+		    items_a = [
+		        { properties: { title: 'A' } },
+		    ],
+		    items_b = [
+		        { properties: { title: 'C' } },
+		        { properties: { title: 'D' } }
+		    ],
+		    items_c = [
+		        { properties: { title: 'E' } },
+		        { properties: { title: 'F' } },
+		    ],
+		    validation = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+		section.updateItemAt(0, { properties: { title: 'A' } });
+		section.updateItemAt(1, { properties: { title: 'B' } });
+		section.updateItemAt(3, { properties: { title: 'F' } });
+		section.insertItemsAt(2, items_b);
+		section.deleteItemsAt(0, 1);
+		section.deleteItemsAt(3, 2);
+		section.appendItems(items_c);
+		section.insertItemsAt(0, items_a);
+
+		var items = section.getItems();
+		should(items.length).be.eql(6);
+		for (var i = 0; i < items.length; i++) {
+		    var item = items[i].properties.title;
+		    should(item).be.eql(validation[i]);
+		}
+
+		finish();
+	});
+
+	it('fireListSectionEvent (header and footer)', function (finish) {
+		var section = Ti.UI.createListSection({
+				headerTitle: 'HEADER',
+        		footerTitle: 'FOOTER',
+		        items: [
+		            { properties: { title: 'B' } },
+		            { properties: { title: 'A' } },
+		            { properties: { title: 'E' } },
+		            { properties: { title: 'G' } }
+		        ]
+		    }),
+		    listView = Ti.UI.createListView({ sections: [section] }),
+		    items_a = [
+		        { properties: { title: 'A' } },
+		    ],
+		    items_b = [
+		        { properties: { title: 'C' } },
+		        { properties: { title: 'D' } }
+		    ],
+		    items_c = [
+		        { properties: { title: 'E' } },
+		        { properties: { title: 'F' } },
+		    ],
+		    validation = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+		section.updateItemAt(0, { properties: { title: 'A' } });
+		section.updateItemAt(1, { properties: { title: 'B' } });
+		section.updateItemAt(3, { properties: { title: 'F' } });
+		section.insertItemsAt(2, items_b);
+		section.deleteItemsAt(0, 1);
+		section.deleteItemsAt(3, 2);
+		section.appendItems(items_c);
+		section.insertItemsAt(0, items_a);
+
+		var items = section.getItems();
+		should(items.length).be.eql(6);
+		for (var i = 0; i < items.length; i++) {
+		    var item = items[i].properties.title;
+		    should(item).be.eql(validation[i]);
+		}
+
+		finish();
+	});
 });

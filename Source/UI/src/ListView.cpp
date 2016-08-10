@@ -233,19 +233,27 @@ namespace TitaniumWindows
 			
 			TITANIUM_ASSERT(views);
 
+			std::uint32_t index = section->hasHeader() ? itemIndex + 1 : itemIndex;
 			if (name == "append") {
 				for (std::uint32_t i = itemIndex; i < itemIndex + itemCount; i++) {
 					const auto view = createSectionItemViewAt<TitaniumWindows::UI::View>(sectionIndex, i);
+					UIElement^ footer = nullptr;
+					if (section->hasFooter()) {
+						footer = views->GetAt(views->Size-1);
+						views->RemoveAtEnd();
+					}
 					appendListViewItemForSection(view, views);
+					if (footer) {
+						views->Append(footer);
+					}
 					section->setViewForSectionItem(i, view);
 				}
 			} else if (name == "update" || name == "replace") {
 				// "update" and "replace" are basically same, it removes existing content and insert new one
-				std::uint32_t index = section->hasHeader() ? itemIndex + 1 : itemIndex;
-				for (std::uint32_t i = index; i < index + affectedRows; i++) {
+				for (std::uint32_t i = itemIndex; i < itemIndex + affectedRows; i++) {
 					views->RemoveAt(index);
-					unregisterListViewItemAsLayoutNode(section->getViewForSectionItem(i - 1));
-					section->setViewForSectionItem(i - 1, nullptr);
+					unregisterListViewItemAsLayoutNode(section->getViewForSectionItem(i));
+					section->setViewForSectionItem(i, nullptr);
 				}
 				for (std::uint32_t i = itemIndex; i < itemIndex + itemCount; i++) {
 					const auto view = createSectionItemViewAt<TitaniumWindows::UI::View>(sectionIndex, i);
@@ -253,12 +261,11 @@ namespace TitaniumWindows
 					section->setViewForSectionItem(i, view);
 				}
 			} else if (name == "delete") {
-				const std::uint32_t index = section->hasHeader() ? itemIndex + 1 : itemIndex;
 				TITANIUM_ASSERT(views->Size > index);
-				for (std::uint32_t i = index; i < index + itemCount; i++) {
+				for (std::uint32_t i = itemIndex; i < itemIndex + itemCount; i++) {
 					views->RemoveAt(index);
-					unregisterListViewItemAsLayoutNode(section->getViewForSectionItem(i - 1));
-					section->setViewForSectionItem(i - 1, nullptr);
+					unregisterListViewItemAsLayoutNode(section->getViewForSectionItem(i));
+					section->setViewForSectionItem(i, nullptr);
 				}
 			} else if (name == "clear") {
 				for (std::uint32_t i = itemIndex; i < itemIndex + itemCount; i++) {
@@ -278,7 +285,7 @@ namespace TitaniumWindows
 			} else if (name == "insert") {
 				for (std::uint32_t i = itemIndex; i < itemIndex + itemCount; i++) {
 					const auto view = createSectionItemViewAt<TitaniumWindows::UI::View>(sectionIndex, i);
-					insertListViewItemForSection(view, views, i);
+					insertListViewItemForSection(view, views, index++);
 					section->setViewForSectionItem(i, view);
 				}
 			}
