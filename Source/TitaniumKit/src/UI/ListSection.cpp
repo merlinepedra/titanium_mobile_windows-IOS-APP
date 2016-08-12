@@ -139,8 +139,8 @@ namespace Titanium
 		void ListSection::deleteItemsAt(const std::uint32_t& index, const std::uint32_t& count, const std::shared_ptr<ListViewAnimationProperties>& animation) TITANIUM_NOEXCEPT
 		{
 			TITANIUM_ASSERT(items__.size() >= index + count);
-			items__.erase (items__.begin() + index, items__.begin() + index + count);
 			fireListSectionEvent("delete", index, count, count);
+			items__.erase (items__.begin() + index, items__.begin() + index + count);
 		}
 
 		ListDataItem ListSection::getItemAt(const std::uint32_t& index) TITANIUM_NOEXCEPT
