@@ -195,8 +195,8 @@ Analytics.prototype.createBackgroundEvent = function backgroundEvent() {
  */
 Analytics.prototype.createFeatureEvent = function featureEvent(name, data) {
 	data = data || {};
-	data['eventName'] = name;
 	if (validateFeatureEvent(data, 0)) {
+		data['eventName'] = name;
 		this.createEvent(EVENT_APP_FEATURE, data);
 	} else {
 	    Ti.API.error('Feature event \'' + name + '\' not conforming to recommended usage.');
