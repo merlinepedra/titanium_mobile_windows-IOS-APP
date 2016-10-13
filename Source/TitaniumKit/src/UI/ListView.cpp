@@ -34,6 +34,10 @@ namespace Titanium
 
 		std::vector<std::shared_ptr<ListSection>> ListView::get_sections() const TITANIUM_NOEXCEPT
 		{
+			// ListView should return original data even when it's filtered
+			if (model__->isSaved()) {
+				return model__->get_saved_sections();
+			}
 			return model__->get_sections();
 		}
 
@@ -105,14 +109,21 @@ namespace Titanium
 			const std::vector<std::shared_ptr<ListSection>> sections { section };
 			const auto caseInsensitive = get_caseInsensitiveSearch();
 			const auto normalizedQuery = caseInsensitive ? boost::algorithm::to_lower_copy(query) : query;
+			const auto saved_sections = model__->get_saved_sections();
+			std::vector<std::tuple<size_t, size_t>> saved_position;
 			std::vector<ListDataItem> items;
-			for (const auto section : model__->get_saved_sections()) {
-				for (const auto item : section->get_items()) {
+			for (size_t sectionIndex = 0; sectionIndex < saved_sections.size(); sectionIndex++) {
+				const auto savedItems = saved_sections.at(sectionIndex)->get_items();
+				for (size_t itemIndex = 0; itemIndex < savedItems.size(); itemIndex++) {
+					const auto item = savedItems.at(itemIndex);
 					if (ListDataItem_contains(item, normalizedQuery, caseInsensitive)) {
+						// Save "original" position so we can search it easily later on
+						saved_position.push_back(std::make_tuple(sectionIndex, itemIndex));
 						items.push_back(item);
 					}
 				}
 			}
+			model__->save_positions(saved_position);
 			section->appendItems(items, nullptr);
 			set_sections(sections);
 		}
@@ -138,6 +149,9 @@ namespace Titanium
 
 		std::uint32_t ListView::get_sectionCount() const TITANIUM_NOEXCEPT
 		{
+			if (model__->isSaved()) {
+				return model__->get_savedSectionCount();
+			}
 			return model__->get_sectionCount();
 		}
 

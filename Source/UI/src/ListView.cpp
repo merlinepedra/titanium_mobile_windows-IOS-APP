@@ -102,7 +102,7 @@ namespace TitaniumWindows
 
 					const auto result  = model__->searchRowBySelectedIndex(selectedIndex);
 					if (result.found) {
-						const auto section = model__->getSectionAtIndex(result.sectionIndex);
+						const auto section = model__->getFilteredSectionAtIndex(result.sectionIndex);
 						auto this_object = get_object();
 
 						TITANIUM_ASSERT(section->get_items().size() > static_cast<std::uint32_t>(result.rowIndex));

@@ -7,6 +7,7 @@
 var should = require('./should');
 
 describe('Ti.UI.SearchBar', function () {
+	this.timeout(10000);
 	it('TableView', function (finish) {
 		var win = Ti.UI.createWindow();
 		var sb = Titanium.UI.createSearchBar({
