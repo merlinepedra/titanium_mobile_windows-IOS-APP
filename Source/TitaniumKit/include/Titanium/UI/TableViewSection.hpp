@@ -104,6 +104,16 @@ namespace Titanium
 
 			/*!
 			  @method
+			  @abstract getItemAt
+			  @discussion Returns a row in this section. This method is for compatibility with ListModel
+			*/
+			virtual std::shared_ptr<TableViewRow> getItemAt(const uint32_t& index) TITANIUM_NOEXCEPT
+			{
+				return rowAtIndex(index);
+			}
+
+			/*!
+			  @method
 			  @abstract update
 			  @discussion Update a table view row from this section by index.
 			*/

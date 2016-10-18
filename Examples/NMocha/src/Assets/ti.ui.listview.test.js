@@ -600,4 +600,58 @@ describe('Titanium.UI.ListView', function () {
 
 		finish();
 	});
+
+	// Making sure sections data is saved even when it's filtered (TIMOB-24019)
+	it('TIMOB-24019', function (finish) {
+	    var win = Ti.UI.createWindow({ backgroundColor: 'green' });
+	    var listView = Ti.UI.createListView({ width: Ti.UI.FILL, height: Ti.UI.FILL, caseInsensitiveSearch: true });
+
+	    var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits' });
+	    var fruitDataSet = [
+			{ properties: { title: 'Apple', searchableText: 'Apple' } },
+			{ properties: { title: 'Banana', searchableText: 'Banana' } },
+	    ];
+	    fruitSection.setItems(fruitDataSet);
+
+	    var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables' });
+	    var vegDataSet = [
+			{ properties: { title: 'Carrots', searchableText: 'Carrots' } },
+			{ properties: { title: 'Potatoes', searchableText: 'Potatoes' } },
+	    ];
+	    vegSection.setItems(vegDataSet);
+
+	    listView.sections = [fruitSection, vegSection];
+
+	    win.addEventListener('open', function () {
+	        should(listView.sectionCount).be.eql(2);
+	        should(listView.sections[0].items.length).be.eql(2);
+	        should(listView.sections[0].items[0].properties.title).be.eql('Apple');
+	        should(listView.sections[0].items[1].properties.title).be.eql('Banana');
+	        should(listView.sections[1].items.length).be.eql(2);
+	        should(listView.sections[1].items[0].properties.title).be.eql('Carrots');
+	        should(listView.sections[1].items[1].properties.title).be.eql('Potatoes');
+
+	        // This should show 'Apple' and 'Potatoes'
+	        listView.searchText = 'p';
+
+	        setTimeout(function () {
+	            // Make sure ListView reserves original data
+	            should(listView.sectionCount).be.eql(2);
+	            should(listView.sections[0].items.length).be.eql(2);
+	            should(listView.sections[0].items[0].properties.title).be.eql('Apple');
+	            should(listView.sections[0].items[1].properties.title).be.eql('Banana');
+	            should(listView.sections[1].items.length).be.eql(2);
+	            should(listView.sections[1].items[0].properties.title).be.eql('Carrots');
+	            should(listView.sections[1].items[1].properties.title).be.eql('Potatoes');
+
+	            win.close();
+	            finish();
+	        }, 2000);
+	    });
+
+	    win.add(listView);
+	    win.open();
+	});
+
+
 });

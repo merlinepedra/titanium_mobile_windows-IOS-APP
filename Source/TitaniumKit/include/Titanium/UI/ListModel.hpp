@@ -10,6 +10,7 @@
 
 #include "Titanium/detail/TiBase.hpp"
 #include <vector>
+#include <tuple>
 
 namespace Titanium
 {
@@ -44,7 +45,21 @@ namespace Titanium
 			{
 				ListRowSearchResult result;
 
-				std::uint32_t sectionIndex   = 0;
+				// If this model is filtered, we need to search for the "original" data.
+				// In this case there's only one section with one header
+				if (isSaved()) {
+					const auto filteredIndex = selectedIndex - 1;
+					if (saved_positions__.size() > filteredIndex) {
+						// Search index from the saved position
+						const auto pos = saved_positions__.at(filteredIndex);
+						result.found = true;
+						result.sectionIndex = std::get<0>(pos);
+						result.rowIndex = std::get<1>(pos);
+					}
+					return result;
+				}
+
+				std::uint32_t sectionIndex = 0;
 				std::uint32_t totalItemCount = offset__;
 
 				for (sectionIndex = 0; sectionIndex < sections__.size(); sectionIndex++) {
@@ -89,6 +104,18 @@ namespace Titanium
 			void save() TITANIUM_NOEXCEPT
 			{
 				saved_sections__ = sections__;
+				saved_positions__.clear();
+			}
+
+			/*!
+			  @method
+			  @abstract save_positions
+			  @discussion Save original position for filtered items
+			  @param saved_positions Maps filtered index to original position: row index -> (section index, row index)
+			*/
+			void save_positions(const std::vector<std::tuple<size_t, size_t>> saved_positions) TITANIUM_NOEXCEPT
+			{
+				saved_positions__ = saved_positions;
 			}
 
 			/*!
@@ -96,7 +123,7 @@ namespace Titanium
 			  @abstract isSaved
 			  @discussion Determines if model is saved
 			*/
-			bool isSaved() TITANIUM_NOEXCEPT
+			bool isSaved() const TITANIUM_NOEXCEPT
 			{
 				return !saved_sections__.empty();
 			}
@@ -110,6 +137,7 @@ namespace Titanium
 			{
 				sections__ = saved_sections__;
 				saved_sections__ = std::vector<std::shared_ptr<T>>();
+				saved_positions__.clear();
 			}
 
 			/*!
@@ -131,6 +159,7 @@ namespace Titanium
 			{
 				sections__.clear();
 				saved_sections__.clear();
+				saved_positions__.clear();
 			}
 
 			/*!
@@ -161,6 +190,16 @@ namespace Titanium
 			std::uint32_t get_sectionCount()
 			{
 				return static_cast<std::uint32_t>(sections__.size());
+			}
+
+			/*!
+			  @method
+			  @abstract get_savedSectionCount
+			  @discussion Get number of saved sections
+			*/
+			std::uint32_t get_savedSectionCount()
+			{
+				return static_cast<std::uint32_t>(saved_sections__.size());
 			}
 
 			/*!
@@ -279,6 +318,20 @@ namespace Titanium
 
 			/*!
 			  @method
+			  @abstract getFilteredSectionAtIndex
+			  @discussion Get section at a specific index. Returns "original" data when it's filtered
+			*/
+			std::shared_ptr<T> getFilteredSectionAtIndex(const uint32_t& sectionIndex) const TITANIUM_NOEXCEPT
+			{
+				if (isSaved()) {
+					TITANIUM_ASSERT(saved_sections__.size() > sectionIndex);
+					return saved_sections__.at(sectionIndex);
+				}
+				return getSectionAtIndex(sectionIndex);
+			}
+
+			/*!
+			  @method
 			  @abstract getSectionIndex
 			  @discussion Return section index from section
 			*/
@@ -306,6 +359,8 @@ namespace Titanium
 			std::vector<std::shared_ptr<T>> saved_sections__;
 			std::vector<std::shared_ptr<T>> sections__;
 
+			// For storing original position for filtered items
+			std::vector<std::tuple<size_t, size_t>> saved_positions__;
 		};
  	} // namespace UI
 } // namespace Titanium
