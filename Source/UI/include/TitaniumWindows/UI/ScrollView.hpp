@@ -29,8 +29,6 @@ namespace TitaniumWindows
 
 			virtual void add(const std::shared_ptr<Titanium::UI::View>& view) TITANIUM_NOEXCEPT override;
 			virtual void set_layout(const std::string& layout) TITANIUM_NOEXCEPT override;
-			virtual void set_width(const std::string&) TITANIUM_NOEXCEPT override;
-			virtual void set_height(const std::string&) TITANIUM_NOEXCEPT override;
 
 			virtual void requestLayout(const bool& fire_event = false) override;
 
