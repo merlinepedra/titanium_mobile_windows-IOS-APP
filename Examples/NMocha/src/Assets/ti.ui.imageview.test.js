@@ -204,7 +204,7 @@ describe('Titanium.UI.ImageView', function () {
 	});
 
 	// TIMOB-18684
-	it('layoutWithSIZE_and_fixed', function (finish) {
+	(utilities.isWindows() ? it : it.skip)('layoutWithSIZE_and_fixed', function (finish) {
 		var win = Ti.UI.createWindow();
 		var view = Ti.UI.createView({
 			backgroundColor: 'green',
@@ -227,7 +227,7 @@ describe('Titanium.UI.ImageView', function () {
 				finish();
 			}, 1000);
 		});
-		innerView.image = 'http://api.randomuser.me/portraits/women/0.jpg';
+		innerView.image = 'ms-appx:///Logo.png';
 		win.add(view);
 		win.open();
 	});

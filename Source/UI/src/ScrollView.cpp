@@ -53,22 +53,6 @@ namespace TitaniumWindows
 			contentView__.GetPrivate<View>()->getViewLayoutDelegate()->set_layout(layout);
 		}
 
-		void ScrollViewLayoutDelegate::set_width(const std::string& width) TITANIUM_NOEXCEPT
-		{
-			WindowsViewLayoutDelegate::set_width(width);
-			if (width != Titanium::UI::Constants::to_string(Titanium::UI::LAYOUT::SIZE)) {
-				contentView__.GetPrivate<View>()->getViewLayoutDelegate()->set_width(Titanium::UI::Constants::to_string(Titanium::UI::LAYOUT::FILL));
-			}
-		}
-
-		void ScrollViewLayoutDelegate::set_height(const std::string& height) TITANIUM_NOEXCEPT
-		{
-			WindowsViewLayoutDelegate::set_height(height);
-			if (height != Titanium::UI::Constants::to_string(Titanium::UI::LAYOUT::SIZE)) {
-				contentView__.GetPrivate<View>()->getViewLayoutDelegate()->set_height(Titanium::UI::Constants::to_string(Titanium::UI::LAYOUT::FILL));
-			}
-		}
-
 		void ScrollView::postCallAsConstructor(const JSContext& js_context, const std::vector<JSValue>& arguments)
 		{
 			using namespace Windows::UI::Xaml::Controls;
