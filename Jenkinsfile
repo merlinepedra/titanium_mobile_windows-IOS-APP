@@ -1,7 +1,7 @@
 #!groovy​
 
 def gitCommit = ''
-def testTimeout = 25
+def testTimeout = 20
 
 def build(sdkVersion, msBuildVersion, architecture, gitCommit) {
 	unstash 'sources' // for build
@@ -95,32 +95,32 @@ timestamps {
 				node('msbuild-12 && (vs2013 || vs2015) && hyper-v && windows-sdk-8.1 && npm && node && cmake && jsc') {
 					build('8.1', '12.0', 'WindowsStore-x86', gitCommit)
 
-					//unstash 'NMocha' // for tests
-					// dir('Tools/Scripts/build') {
-					// 	timeout(testTimeout) {
-					// 		echo 'Running Tests on Windows 8.1 Desktop'
-					// 		bat "node test.js -s 8.1 -T ws-local -p Windows8_1.Store -b ${targetBranch}"
-					// 	}
-					// 	// Kill the desktop app, so workspace cleanup works...
-					// 	bat 'taskkill /IM Mocha.exe /F'
-					// }
-					// junit 'dist/junit_report.xml'
+					unstash 'NMocha' // for tests
+					dir('Tools/Scripts/build') {
+						timeout(testTimeout) {
+							echo 'Running Tests on Windows 8.1 Desktop'
+							bat "node test.js -s 8.1 -T ws-local -p Windows8_1.Store -b ${targetBranch}"
+						}
+						// Kill the desktop app, so workspace cleanup works...
+						bat 'taskkill /IM Mocha.exe /F'
+					}
+					junit 'dist/junit_report.xml'
 				}
 			},
 			'Windows 8.1 Phone x86': {
 				node('msbuild-12 && (vs2013 || vs2015) && hyper-v && windows-sdk-8.1 && npm && node && cmake && jsc') {
 					build('8.1', '12.0', 'WindowsPhone-x86', gitCommit)
 
-					// unstash 'NMocha' // for tests
-					// dir('Tools/Scripts/build') {
-					// 	timeout(testTimeout) {
-					// 		echo 'Running Tests on Windows 8.1 Phone Emulator'
-					// 		bat "node test.js -s 8.1 -T wp-emulator -p Windows8_1.Phone -b ${targetBranch}"
-					// 	}
-					// 	// Kill the phone emulator, so workspace cleanup works...
-					// 	bat 'taskkill /IM xde.exe'
-					// }
-					// junit 'dist/junit_report.xml'
+					unstash 'NMocha' // for tests
+					dir('Tools/Scripts/build') {
+						timeout(testTimeout) {
+							echo 'Running Tests on Windows 8.1 Phone Emulator'
+							bat "node test.js -s 8.1 -T wp-emulator -p Windows8_1.Phone -b ${targetBranch}"
+						}
+						// Kill the phone emulator, so workspace cleanup works...
+						bat 'taskkill /IM xde.exe'
+					}
+					junit 'dist/junit_report.xml'
 				}
 			},
 			'Windows 8.1 Phone ARM': {
@@ -133,27 +133,27 @@ timestamps {
 					build('10.0', '14.0', 'WindowsStore-x86', gitCommit)
 
 					unstash 'NMocha' // for tests
-					// dir('Tools/Scripts/build') {
-					// 	timeout(testTimeout) {
-					// 		echo 'Running Tests on Windows 10 Desktop'
-					// 		bat "node test.js -s 10.0 -T ws-local -p Windows10.Store -b ${targetBranch}"
-					// 	}
-					// 	// Kill the desktop app, so workspace cleanup works...
-					// 	bat 'taskkill /IM Mocha.exe /F'
-					// }
-					// junit 'dist/junit_report.xml'
-					// // Delete the report from store, so if phone fails we don't pick this one up
-					// bat 'del /f /q dist\\junit_report.xml'
-					//
-					// dir('Tools/Scripts/build') {
-					// 	timeout(testTimeout) {
-					// 		echo 'Running Tests on Windows 10 Phone Emulator'
-					// 		bat "node test.js -s 10.0.10586 -T wp-emulator -p Windows10.Phone -b ${targetBranch}"
-					// 	}
-					// 	// Kill the phone emulator, so workspace cleanup works...
-					// 	bat 'taskkill /IM xde.exe'
-					// }
-					// junit 'dist/junit_report.xml'
+					dir('Tools/Scripts/build') {
+						timeout(testTimeout) {
+							echo 'Running Tests on Windows 10 Desktop'
+							bat "node test.js -s 10.0 -T ws-local -p Windows10.Store -b ${targetBranch}"
+						}
+						// Kill the desktop app, so workspace cleanup works...
+						bat 'taskkill /IM Mocha.exe /F'
+					}
+					junit 'dist/junit_report.xml'
+					// Delete the report from store, so if phone fails we don't pick this one up
+					bat 'del /f /q dist\\junit_report.xml'
+
+					dir('Tools/Scripts/build') {
+						timeout(testTimeout) {
+							echo 'Running Tests on Windows 10 Phone Emulator'
+							bat "node test.js -s 10.0.10586 -T wp-emulator -p Windows10.Phone -b ${targetBranch}"
+						}
+						// Kill the phone emulator, so workspace cleanup works...
+						bat 'taskkill /IM xde.exe'
+					}
+					junit 'dist/junit_report.xml'
 				}
 			},
 			'Windows 10 ARM': {
