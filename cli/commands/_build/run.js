@@ -106,6 +106,7 @@ function runCmake(next) {
 			'-G', generatorName,
 			'-DCMAKE_SYSTEM_NAME=' + this.cmakePlatform,
 			'-DCMAKE_SYSTEM_VERSION=' + this.targetPlatformSdkVersion,
+			'-DHAL_RENAME_AXWAYHAL=ON',
 			this.buildDir
 		], null, 2));
 	fs.existsSync(this.cmakeTargetDir) || wrench.mkdirSyncRecursive(this.cmakeTargetDir);
@@ -116,6 +117,7 @@ function runCmake(next) {
 			'-G', generatorName,
 			'-DCMAKE_SYSTEM_NAME=' + this.cmakePlatform,
 			'-DCMAKE_SYSTEM_VERSION=' + this.targetPlatformSdkVersion,
+			'-DHAL_RENAME_AXWAYHAL=ON',
 			this.buildDir
 		],
 		{
