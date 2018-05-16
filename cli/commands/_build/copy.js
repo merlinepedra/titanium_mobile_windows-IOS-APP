@@ -425,10 +425,10 @@ function copyResources(next) {
 		},
 
 		function (cb) {
-			var src = path.join(this.platformPath, 'lib', 'HAL', this.cmakePlatformAbbrev, this.arch, 'HAL.dll');
+			var src = path.join(this.platformPath, 'lib', 'HAL', this.cmakePlatformAbbrev, this.arch, 'AXWAYHAL.dll');
 			copyFile.call(this,
 				src,
-				path.join(this.buildDir, 'lib', 'HAL.dll'),
+				path.join(this.buildDir, 'lib', 'AXWAYHAL.dll'),
 				cb);
 		},
 
@@ -667,7 +667,7 @@ function copyResources(next) {
 					analytics: this.tiapp.analytics,
 					publisher: this.tiapp.publisher,
 					url: this.tiapp.url,
-					version: this.tiapp.version,
+					version: this.buildVersion,
 					description: this.tiapp.description,
 					copyright: this.tiapp.copyright,
 					guid: this.tiapp.guid,
