@@ -54,6 +54,8 @@ namespace Titanium
 		TITANIUM_ADD_FUNCTION(Analytics, featureEvent);
 		TITANIUM_ADD_FUNCTION(Analytics, navEvent);
 		TITANIUM_ADD_FUNCTION(Analytics, getLastEvent);
+		TITANIUM_ADD_PROPERTY(Analytics, isOptedOut);
+		TITANIUM_ADD_FUNCTION(Analytics, setOptedOut);
 	}
 
 	JSObject Analytics::GetStaticObject(const JSContext& js_context) TITANIUM_NOEXCEPT
@@ -132,6 +134,36 @@ namespace Titanium
 			return get_context().CreateNull();
 		}
 	}
+
+	TITANIUM_PROPERTY_GETTER(Analytics, isOptedOut)
+	{
+		if (ti_analytics__.HasProperty("getOptedOut")) {
+			auto func = ti_analytics__.GetProperty("getOptedOut");
+			return static_cast<JSObject>(func)(get_context().get_global_object());
+		}
+		return get_context().CreateUndefined();
+	}
+
+	TITANIUM_PROPERTY_SETTER(Analytics, isOptedOut)
+	{
+		if (ti_analytics__.HasProperty("setOptedOut")) {
+			auto func = ti_analytics__.GetProperty("setOptedOut");
+			static_cast<JSObject>(func)({ argument }, get_context().get_global_object());
+			return true;
+		}
+		return false;
+	}
+
+	TITANIUM_FUNCTION(Analytics, setOptedOut)
+	{
+		ENSURE_ARGUMENT_INDEX(0);
+		if (ti_analytics__.HasProperty("setOptedOut")) {
+			auto func = ti_analytics__.GetProperty("setOptedOut");
+			static_cast<JSObject>(func)({ arguments.at(0) }, get_context().get_global_object());
+		}
+		return get_context().CreateUndefined();
+	}
+
 
 	TITANIUM_FUNCTION_AS_GETTER(Analytics, getLastEvent, lastEvent);
 

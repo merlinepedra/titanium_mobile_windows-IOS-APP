@@ -24,7 +24,8 @@ var ANALYTICS_URL = 'https://api.appcelerator.com/p/v3/mobile-track/',
 	FEATURE_MAX_LEVELS = 5,
 	FEATURE_MAX_SIZE = 1000,
 	FEATURE_MAX_KEYS = 35,
-	FEATURE_MAX_KEY_LENGTH = 50;
+	FEATURE_MAX_KEY_LENGTH = 50,
+	OPTED_OUT_KEY = 'Ti.Analytics.isOptedOut';
 
 /**
  * Creates the analytics object
@@ -44,6 +45,7 @@ function Analytics() {
 	this.timestamp = null;
 	this.lastEvent = {};
 	this.receivedResponse = false;
+	this.isOptedOut = Ti.App.Properties.getBool(OPTED_OUT_KEY, false);
 }
 
 Analytics.prototype.loadEventQueue = function loadEventQueue() {
@@ -222,6 +224,14 @@ Analytics.prototype.createNavEvent = function navEvent(from, to, name, data) {
  * @private
  */
 Analytics.prototype.postEvents = function postEvents() {
+	if (this.isOptedOut) {
+		// Clear all pending events
+		this.eventQueue = [];
+		this.saveEventQueue();
+		this.receivedResponse = true;
+		Ti.API.debug('Skipping Ti.Analytics.postEvents because of opted-out');
+		return;
+	}
 	if (Ti.Network.online) {
 		var _t = this,
 			retry = 0;
@@ -310,5 +320,13 @@ this.exports = {
 	},
 	setReceivedResponse: function (value) {
 		analytics.receivedResponse = value;
+	},
+	getOptedOut: function() {
+		return analytics.isOptedOut;
+	},
+	setOptedOut: function(value) {
+		analytics.isOptedOut = value;
+		Ti.App.Properties.setBool(OPTED_OUT_KEY, value);
+		Ti.API.debug('Saving Ti.Analytics.isOptedOut=' + value);
 	}
 };
