@@ -51,6 +51,7 @@ namespace Titanium
 		TITANIUM_ADD_PROPERTY(Analytics, _receivedResponse);
 		TITANIUM_ADD_PROPERTY_READONLY(Analytics, lastEvent);
 		TITANIUM_ADD_FUNCTION(Analytics, _start);
+		TITANIUM_ADD_FUNCTION(Analytics, _startPostingEvents);
 		TITANIUM_ADD_FUNCTION(Analytics, featureEvent);
 		TITANIUM_ADD_FUNCTION(Analytics, navEvent);
 		TITANIUM_ADD_FUNCTION(Analytics, getLastEvent);
@@ -102,6 +103,15 @@ namespace Titanium
 	{
 		const auto analytics = GetStaticObject(this_object.get_context()).GetPrivate<Analytics>();
 		return this_object.get_context().CreateBoolean(analytics->loadJS());
+	}
+
+	TITANIUM_FUNCTION(Analytics, _startPostingEvents)
+	{
+		if (ti_analytics__.HasProperty("startPostingEvents")) {
+			auto func = ti_analytics__.GetProperty("startPostingEvents");
+			static_cast<JSObject>(func)(get_context().get_global_object());
+		}
+		return get_context().CreateUndefined();
 	}
 
 	TITANIUM_FUNCTION(Analytics, featureEvent)

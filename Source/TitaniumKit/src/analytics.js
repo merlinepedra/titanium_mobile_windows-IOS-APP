@@ -272,15 +272,6 @@ Analytics.prototype.postEvents = function postEvents() {
 
 // create analytics
 var analytics = new Analytics();
-// enroll on our first launch
-if (!Ti.App.Properties.getBool('_firstLaunch', false)) {
-	Ti.App.Properties.setBool('_firstLaunch', true);
-	analytics.createEnrollEvent();
-}
-// queue ti.foreground event
-analytics.createForegroundEvent();
-// send events
-analytics.postEvents();
 // listen for 'resume' and 'pause' events
 Ti.App.addEventListener('resume', function resume(e) {
 	// generate a new sessionId if we have been suspeneded for over 30 seconds
@@ -320,6 +311,18 @@ this.exports = {
 	},
 	setReceivedResponse: function (value) {
 		analytics.receivedResponse = value;
+	},
+	startPostingEvents: function() {
+		Ti.API.debug('Start posting initial Ti.Analytics events');
+		// enroll on our first launch
+		if (!Ti.App.Properties.getBool('_firstLaunch', false)) {
+			Ti.App.Properties.setBool('_firstLaunch', true);
+			analytics.createEnrollEvent();
+		}
+		// queue ti.foreground event
+		analytics.createForegroundEvent();
+		// send events
+		analytics.postEvents();
 	},
 	getOptedOut: function() {
 		return analytics.isOptedOut;
