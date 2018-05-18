@@ -49,7 +49,7 @@ namespace Titanium
 		TITANIUM_FUNCTION_DEF(getLastEvent);
 		TITANIUM_PROPERTY_DEF(optedOut);
 		TITANIUM_FUNCTION_DEF(setOptedOut);
-		TITANIUM_FUNCTION_DEF(isOptedOut);
+		TITANIUM_FUNCTION_DEF(getOptedOut);
 
 		bool loadJS();
 

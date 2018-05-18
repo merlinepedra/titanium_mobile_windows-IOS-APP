@@ -57,7 +57,7 @@ namespace Titanium
 		TITANIUM_ADD_FUNCTION(Analytics, getLastEvent);
 		TITANIUM_ADD_PROPERTY(Analytics, optedOut);
 		TITANIUM_ADD_FUNCTION(Analytics, setOptedOut);
-		TITANIUM_ADD_FUNCTION(Analytics, isOptedOut);
+		TITANIUM_ADD_FUNCTION(Analytics, getOptedOut);
 	}
 
 	JSObject Analytics::GetStaticObject(const JSContext& js_context) TITANIUM_NOEXCEPT
@@ -175,7 +175,7 @@ namespace Titanium
 		return get_context().CreateUndefined();
 	}
 
-	TITANIUM_FUNCTION(Analytics, isOptedOut)
+	TITANIUM_FUNCTION(Analytics, getOptedOut)
 	{
 		if (ti_analytics__.HasProperty("getOptedOut")) {
 			auto func = ti_analytics__.GetProperty("getOptedOut");
