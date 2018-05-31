@@ -157,17 +157,9 @@ timestamps {
 		} // stage('Docs')
 	} // node
 
-	// Are we on a PR/feature branch, or a "mainline" branch like master/6_2_X/7_0_X?
-	def isMainlineBranch = (env.BRANCH_NAME ==~ /master|\d_\d_(X|\d)/)
-	def targetBranch = env.CHANGE_TARGET // if it's a PR, use target merge branch as branch of SDK to install
-	if (isMainlineBranch) { // if it's a mainline branch, use the same branch for titanium_mobile
-		targetBranch = env.BRANCH_NAME
-	}
-	if (!targetBranch) { // if all else fails, use master as SDK branch to test with
-		targetBranch = 'master'
-	}
+	def targetBranch = env.BRANCH_NAME
 	// Trigger titanium_mobile if we're on a mainline branch
-	def triggerDownstream = isMainlineBranch
+	def triggerDownstream = true
 
 	stage('Build') {
 		parallel(
@@ -186,7 +178,7 @@ timestamps {
 	} // Stage build
 
 	stage('Test') {
-		def testSuiteBranch = targetBranch
+		def testSuiteBranch = '7_1_X'
 		parallel(
 			'ws-local': {
 				node('msbuild-14 && vs2015 && windows-sdk-10 && cmake && node && npm') {
